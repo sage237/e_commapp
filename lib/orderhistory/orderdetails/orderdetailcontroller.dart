@@ -33,10 +33,12 @@ class OrderDetailController extends GetxController {
         myOrder = data.docs
             .firstWhere((element) => '${element['orderid']}' == orderid);
         log('Items ${myOrder['items']}');
-        myOrder['items'].toString().split(',').forEach((elemenx) async {
+        for(int i=0;i<myOrder['items'].toString().split(',').length;i++) {
+          var elemenx = myOrder['items'].toString().split(',')[i];
+          var qty = myOrder['quantities'].toString().split(',')[i];
           try {
             CollectionReference cats =
-                FirebaseFirestore.instance.collection('products');
+            FirebaseFirestore.instance.collection('products');
 
             final data = await cats.get();
             if (data.docs.isNotEmpty) {
@@ -47,20 +49,22 @@ class OrderDetailController extends GetxController {
                       itemId: '${element['itemID']}',
                       itemName: element['itemName'],
                       itemDesc: element['itemDesc'],
+                      quantity: int.tryParse('${qty}'),
                       image: [
                         'assets/items/${element['itemID']}/1.jpg',
                         'assets/items/${element['itemID']}/2.jpg',
                         'assets/items/${element['itemID']}/3.jpg'
                       ],
                       price: '${element['price']}',
-                      thumb: '${element['thumb']}', rating:'${element['rating']}'));
+                      thumb: '${element['thumb']}',
+                      rating: '${element['rating']}'));
                 }
               }
             }
           } catch (e) {
             log("Popular  Exception $e");
           }
-        });
+        }
         orderHistoryDetail = OrderHistoryDetail(
             error: 'success',
             statuscode: '200',

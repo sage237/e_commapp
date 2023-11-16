@@ -57,18 +57,21 @@ class CheckoutController extends GetxController {
 
     var sp = await SharedPreferences.getInstance();
     var itemIDs=[];
+    var quantity=[];
     for (var element in list) {
       itemIDs.add("${element.itemId}");
+      quantity.add("${element.quantity}");
     }
 
     isloading(true);
     try {
       final firebase = FirebaseFirestore.instance.collection('orders');
-     final res= await firebase.add({
+      await firebase.add({
         'couponcode': selectedcoupon != null ? selectedcoupon.couponCode : '',
         'custid': sp.getString('memberid'),
         'deliveryCharge': '${deliveryfee.value}',
         'items': itemIDs.join(','),
+        'quantities': quantity.join(','),
         'orderDate': DateFormat('dd-MMM-yyyy hh:mm:ss aa').format(DateTime.now()),
         'orderamount': '$totalpaid',
         'orderid': '${DateTime.now().millisecondsSinceEpoch}',
@@ -80,7 +83,7 @@ class CheckoutController extends GetxController {
         'totalAmount': '$totalpaid',
         'totalDiscount': '$disamount',
       }).then((value){
-       _cartController.cartitems.clear();
+
        Get.dialog(WillPopScope(
          onWillPop: () async => false,
          child: Dialog(
@@ -112,6 +115,7 @@ class CheckoutController extends GetxController {
                      ),
                      MaterialButton(
                        onPressed: () {
+                         _cartController.cartitems.clear();
                          Get.offAll(() => HomePage2());
                        },
                        color: Colors.green.shade400,
